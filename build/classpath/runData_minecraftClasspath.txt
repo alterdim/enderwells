@@ -1,4 +1,4 @@
-C:\Users\roilo\.gradle\caches\forge_gradle\minecraft_user_repo\net\minecraftforge\forge\1.19.3-44.1.5_mapped_parchment_2022.12.18-1.19.3\forge-1.19.3-44.1.5_mapped_parchment_2022.12.18-1.19.3.jar
+C:\Users\roilo\.gradle\caches\forge_gradle\minecraft_user_repo\net\minecraftforge\forge\1.19.3-44.1.5_mapped_parchment_2022.12.18-1.19.3\forge-1.19.3-44.1.5_mapped_parchment_2022.12.18-1.19.3-recomp.jar
 C:\Users\roilo\.gradle\caches\forge_gradle\minecraft_repo\versions\1.19.3\client-extra.jar
 C:\Users\roilo\.gradle\caches\modules-2\files-2.1\net.minecraftforge\javafmllanguage\1.19.3-44.1.5\e04ae5fa4b97321137c7310371329dc28a8a2638\javafmllanguage-1.19.3-44.1.5.jar
 C:\Users\roilo\.gradle\caches\modules-2\files-2.1\net.minecraftforge\lowcodelanguage\1.19.3-44.1.5\33c6ee2f0eef3dbfc40cca42c887be4e3be183db\lowcodelanguage-1.19.3-44.1.5.jar
