@@ -1,6 +1,7 @@
 package com.alternis.sculkwells;
 
 import com.alternis.sculkwells.blocks.ModBlocks;
+import com.alternis.sculkwells.blocks.entity.ModBlockEntities;
 import com.alternis.sculkwells.items.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -28,6 +29,7 @@ public class SculkWells
         ModBlocks.register(modEventBus);
         modEventBus.addListener(this::commonSetup);
         modEventBus.register(this);
+        ModBlockEntities.register(modEventBus);
 
 
 
