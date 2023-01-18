@@ -67,7 +67,7 @@ public class SculkExtractorEntity extends BlockEntity implements MenuProvider {
             public int getCount() {
                 return 0;
             }
-        }
+        };
     }
 
 
