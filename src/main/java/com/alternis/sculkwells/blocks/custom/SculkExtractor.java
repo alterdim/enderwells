@@ -64,7 +64,7 @@ public class SculkExtractor extends BaseEntityBlock {
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
-    @Override
+    /*@Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos,
                                  Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide()) {
@@ -77,7 +77,7 @@ public class SculkExtractor extends BaseEntityBlock {
         }
 
         return InteractionResult.sidedSuccess(pLevel.isClientSide());
-    }
+    }*/
 
     @Nullable
     @Override
