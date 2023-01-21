@@ -1,7 +1,9 @@
 package com.alternis.sculkwells.blocks.custom;
 
+import com.alternis.sculkwells.api.VanillaPacketDispatcher;
 import com.alternis.sculkwells.blocks.entity.ModBlockEntities;
 import com.alternis.sculkwells.blocks.entity.SculkExtractorEntity;
+import com.alternis.sculkwells.blocks.entity.SculkWellsBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -13,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
@@ -64,20 +67,22 @@ public class SculkExtractor extends BaseEntityBlock {
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
-    /*@Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos,
-                                 Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (!pLevel.isClientSide()) {
-            BlockEntity entity = pLevel.getBlockEntity(pPos);
-            if(entity instanceof SculkExtractorEntity) {
-                NetworkHooks.openScreen(((ServerPlayer)pPlayer), (SculkExtractorEntity)entity, pPos);
-            } else {
-                throw new IllegalStateException("Our Container provider is missing!");
+    @Override
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!(world.getBlockEntity(pos) instanceof SculkExtractorEntity extractor)) {
+            return InteractionResult.PASS;
+        }
+        ItemStack stack = player.getItemInHand(hand);
+        if (!stack.isEmpty()) {
+            boolean result = extractor.addItem(player, stack, hand);
+            VanillaPacketDispatcher.dispatchTEToNearbyPlayers(extractor);
+            if (result) {
+                return InteractionResult.sidedSuccess(world.isClientSide());
             }
         }
 
-        return InteractionResult.sidedSuccess(pLevel.isClientSide());
-    }*/
+        return InteractionResult.PASS;
+    }
 
     @Nullable
     @Override

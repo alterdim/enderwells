@@ -4,6 +4,7 @@ import com.alternis.sculkwells.blocks.ModBlocks;
 import com.alternis.sculkwells.blocks.entity.ModBlockEntities;
 import com.alternis.sculkwells.entity.ModEntityTypes;
 import com.alternis.sculkwells.entity.client.ProteanGuardRenderer;
+import com.alternis.sculkwells.items.ModCreativeModTab;
 import com.alternis.sculkwells.items.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -52,11 +53,12 @@ public class SculkWells
     @SubscribeEvent
     public void buildContents(CreativeModeTabEvent.BuildContents event) {
         // Add to ingredients tab
-        if (event.getTab() == CreativeModeTabs.INGREDIENTS) {
+        if (event.getTab() == ModCreativeModTab.SCULK_WELLS_CREATIVE_TAB) {
             event.accept(ModItems.DARK_DRILL);
-        }
-        if (event.getTab() == CreativeModeTabs.SPAWN_EGGS) {
+            event.accept(ModBlocks.SCULK_IRON_BLOCK);
+            event.accept(ModItems.SCULK_IRON_INGOT);
             event.accept(ModItems.PROTEAN_GUARD_SPAWN_EGG);
+            event.accept(ModBlocks.SCULK_EXTRACTOR);
         }
 
 

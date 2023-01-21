@@ -23,6 +23,7 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> SCULK_EXTRACTOR = registerBlock("sculk_extractor", ()->
             new SculkExtractor(BlockBehaviour.Properties.of(Material.SCULK)));
+    public static final RegistryObject<Block> SCULK_IRON_BLOCK = registerBlock("sculk_iron_block", () -> new Block(BlockBehaviour.Properties.of(Material.SCULK)));
 
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {

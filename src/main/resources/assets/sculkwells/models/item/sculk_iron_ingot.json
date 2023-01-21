@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "sculkwells:item/sculk_iron_ingot"
+  }
+}
