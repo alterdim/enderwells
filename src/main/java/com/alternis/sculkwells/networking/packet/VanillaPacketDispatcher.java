@@ -1,4 +1,4 @@
-package com.alternis.sculkwells.api;
+package com.alternis.sculkwells.networking.packet;
 /*
  * This class is a modified part of the Botania Mod.
  * Get the Source Code in github:

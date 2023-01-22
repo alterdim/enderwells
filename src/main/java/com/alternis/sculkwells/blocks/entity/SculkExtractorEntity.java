@@ -1,38 +1,24 @@
 package com.alternis.sculkwells.blocks.entity;
 
-import com.alternis.sculkwells.api.VanillaPacketDispatcher;
+import com.alternis.sculkwells.networking.packet.VanillaPacketDispatcher;
 import com.alternis.sculkwells.blocks.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -40,8 +26,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 
 public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
@@ -63,20 +47,17 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
 
     };
 
-    public boolean addItem(@Nullable Player player, ItemStack stack, @Nullable InteractionHand hand) {
+    public ItemStack getRenderStack() {
+        ItemStack stack = ItemStack.EMPTY;
 
-        if (stack.is(Blocks.GOLD_BLOCK.asItem())) {
-            if (!level.isClientSide) {
-                ItemStack toSpawn = player != null && player.getAbilities().instabuild ? stack.copy().split(1) : stack.split(1);
-                ItemEntity item = new ItemEntity(level, getBlockPos().getX() + 0.5, getBlockPos().getY() + 1, getBlockPos().getZ() + 0.5, toSpawn);
-                item.setPickUpDelay(40);
-                item.setDeltaMovement(Vec3.ZERO);
-                level.addFreshEntity(item);
-            }
-
-            return true;
+        if(!itemHandler.getStackInSlot(0).isEmpty()) {
+            stack = itemHandler.getStackInSlot(2);
         }
 
+        return stack;
+    }
+
+    public boolean addItem(@Nullable Player player, ItemStack stack, @Nullable InteractionHand hand) {
         boolean did = false;
 
         for (int i = 0; i < inventorySize(); i++) {
@@ -97,7 +78,7 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
         if (did) {
             VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
         }
-
+        System.out.println(getItemHandler().getItem(0));
         return true;
     }
 
@@ -161,14 +142,12 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
     }
 
     public void drops() {
-        SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
-        for (int i = 0; i <itemHandler.getSlots(); i++) {
-            inventory.setItem(i, itemHandler.getStackInSlot(i));
-        }
-        Containers.dropContents(this.level, this.worldPosition, inventory);
+
+        Containers.dropContents(this.level, this.worldPosition, getItemHandler());
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, SculkExtractorEntity pEntity) {
+        if (pEntity.work()) {
             for (int x = blockPos.getX()-3; x < blockPos.getX()+3; x++) {
                 for (int y = blockPos.getY()-3; y < blockPos.getY()+3; y++) {
                     for (int z = blockPos.getZ()-3; z < blockPos.getZ()+3; z++) {
@@ -187,6 +166,8 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
                     }
                 }
             }
+        }
+
         }
 
     public boolean increaseProgress(int amount) {
@@ -229,6 +210,10 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
                 return 1;
             }
         };
+    }
+
+    public boolean isFull() {
+        return !getItemHandler().getItem(0).isEmpty();
     }
 
 
