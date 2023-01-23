@@ -1,7 +1,8 @@
 package com.alternis.sculkwells.blocks.entity;
 
-import com.alternis.sculkwells.networking.packet.VanillaPacketDispatcher;
 import com.alternis.sculkwells.blocks.ModBlocks;
+import com.alternis.sculkwells.networking.ModMessages;
+import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -26,46 +28,63 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.classic.Mod;
 
 
-public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
+public class SculkExtractorEntity extends BlockEntity {
+
+    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            if(!level.isClientSide()) {
+                ModMessages.sendToClients(new ItemStackSyncS2CPacket(this, worldPosition));
+            }
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return switch (slot) {
+                default -> super.isItemValid(slot, stack);
+            };
+        }
+    };
+
+
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     protected final ContainerData data;
     private int progress = 0;
-    private int MAX_PROGRESS = 80;
+    private int MAX_PROGRESS = 5;
     private int workProgress = 0;
     private int MAX_WORK = 200;
     private static Vec3i box;
     private static Vec3i box2;
-    private final ItemStackHandler itemHandler = new ItemStackHandler(3) {
-        @Override
-        protected void onContentsChanged(int slot)
-        {
-            setChanged();
-        }
 
-    };
 
     public ItemStack getRenderStack() {
         ItemStack stack = ItemStack.EMPTY;
 
         if(!itemHandler.getStackInSlot(0).isEmpty()) {
-            stack = itemHandler.getStackInSlot(2);
+            stack = itemHandler.getStackInSlot(0);
         }
 
         return stack;
+    }
+    public ItemStackHandler getItemHandler() {
+        return itemHandler;
     }
 
     public boolean addItem(@Nullable Player player, ItemStack stack, @Nullable InteractionHand hand) {
         boolean did = false;
 
-        for (int i = 0; i < inventorySize(); i++) {
-            if (getItemHandler().getItem(i).isEmpty()) {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            if (itemHandler.getStackInSlot(i).isEmpty()) {
+                System.out.println("owo");
                 did = true;
                 ItemStack stackToAdd = stack.copy();
                 stackToAdd.setCount(1);
-                getItemHandler().setItem(i, stackToAdd);
+                itemHandler.setStackInSlot(i, stackToAdd);
 
                 if (player == null || !player.getAbilities().instabuild) {
                     stack.shrink(1);
@@ -74,12 +93,12 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
                 break;
             }
         }
-
-        if (did) {
-            VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
-        }
-        System.out.println(getItemHandler().getItem(0));
         return true;
+    }
+
+    public boolean isWorking()
+    {
+        return itemHandler.getStackInSlot(0).is(Blocks.GOLD_BLOCK.asItem());
     }
 
 
@@ -142,8 +161,12 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
     }
 
     public void drops() {
+        SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            inventory.setItem(i, itemHandler.getStackInSlot(i));
+        }
 
-        Containers.dropContents(this.level, this.worldPosition, getItemHandler());
+        Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, SculkExtractorEntity pEntity) {
@@ -175,13 +198,19 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
         if (progress == MAX_PROGRESS) {
             resetProgress();
 
-            if (level.getBlockState(getBlockPos().below()).getBlock() == Blocks.GOLD_BLOCK) {
-                level.setBlockAndUpdate(getBlockPos().below(), ModBlocks.SCULK_IRON_BLOCK.get().defaultBlockState());
+            if (itemHandler.getStackInSlot(0).is(Blocks.GOLD_BLOCK.asItem())) {
                 getLevel().playLocalSound(getBlockPos(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 1f, 1f, true);
+                itemHandler.setStackInSlot(0, ModBlocks.SCULK_IRON_BLOCK.get().asItem().getDefaultInstance());
             }
 
         }
         return false;
+    }
+
+    public void setHandler(ItemStackHandler itemStackHandler) {
+        for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+            itemHandler.setStackInSlot(i, itemStackHandler.getStackInSlot(i));
+        }
     }
 
     public boolean work() {
@@ -199,21 +228,8 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
         progress = 0;
     }
 
-    private static void craftItem(SculkExtractorEntity pEntity) {
-    }
-
-    @Override
-    protected SimpleContainer createItemHandler() {
-        return new SimpleContainer(16) {
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        };
-    }
-
     public boolean isFull() {
-        return !getItemHandler().getItem(0).isEmpty();
+        return !itemHandler.getStackInSlot(0).isEmpty();
     }
 
 

@@ -1,10 +1,14 @@
 package com.alternis.sculkwells.blocks.custom;
 
-import com.alternis.sculkwells.networking.packet.VanillaPacketDispatcher;
 import com.alternis.sculkwells.blocks.entity.ModBlockEntities;
 import com.alternis.sculkwells.blocks.entity.SculkExtractorEntity;
+import com.alternis.sculkwells.networking.ModMessages;
+import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
+import com.alternis.sculkwells.particles.ModParticles;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -24,18 +28,28 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class SculkExtractor extends BaseEntityBlock {
 
-    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D);
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     public SculkExtractor(Properties pProperties) {
         super(pProperties.noOcclusion().sound(SoundType.AMETHYST));
     }
+    public static final List<BlockPos> SCULK_BLOCKS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2).filter((block) -> {
+        return Math.abs(block.getX()) == 2 || Math.abs(block.getZ()) == 2;
+    }).map(BlockPos::immutable).toList();
 
 
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
+    }
+
+    public static boolean isValidSculk(Level level, BlockPos pPos, BlockPos sculkPos) {
+        return level.isEmptyBlock(pPos.offset(sculkPos.getX() / 2, sculkPos.getY(), sculkPos.getZ() / 2));
     }
 
     @Override
@@ -64,23 +78,43 @@ public class SculkExtractor extends BaseEntityBlock {
     }
 
     @Override
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
+        super.animateTick(pState, pLevel, pPos, pRandom);
+        if ((pLevel.getBlockEntity(pPos) instanceof SculkExtractorEntity extractor) && extractor.isWorking()) {
+            for(BlockPos blockpos : SCULK_BLOCKS) {
+                if (pRandom.nextInt(16) == 0 && isValidSculk(pLevel, pPos, blockpos)) {
+                    pLevel.addParticle(ModParticles.SCULK_SOUL_PARTICLES.get(), (double)pPos.getX() + 0.5D, (double)pPos.getY() + 2.0D, (double)pPos.getZ() + 0.5D, (double)((float)blockpos.getX() + pRandom.nextFloat()) - 0.5D, (double)((float)blockpos.getY() - pRandom.nextFloat() - 1.0F), (double)((float)blockpos.getZ() + pRandom.nextFloat()) - 0.5D);
+                    System.out.println("yes");
+                }
+            }
+        }
+
+
+    }
+
+    @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        for (BlockPos positiions : SCULK_BLOCKS) {
+            System.out.println(positiions);
+        }
 
         if (!(world.getBlockEntity(pos) instanceof SculkExtractorEntity extractor)) {
             return InteractionResult.PASS;
         }
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty() && extractor.isFull()) {
-            boolean result = player.addItem(extractor.getItemHandler().removeItem(0, 1));
-            VanillaPacketDispatcher.dispatchTEToNearbyPlayers(extractor);
+            boolean result = player.addItem(extractor.getItemHandler().extractItem(0, 1, false));
             if (result) {
                 return InteractionResult.sidedSuccess(world.isClientSide());
             }
 
         }
+        System.out.println(stack.isEmpty());
+        System.out.println(extractor.isFull());
         if (!stack.isEmpty() && !extractor.isFull() && stack.is(Blocks.GOLD_BLOCK.asItem())) {
+            System.out.println("OMG");
             boolean result = extractor.addItem(player, stack, hand);
-            VanillaPacketDispatcher.dispatchTEToNearbyPlayers(extractor);
+            System.out.println(result);
             if (result) {
                 return InteractionResult.sidedSuccess(world.isClientSide());
             }

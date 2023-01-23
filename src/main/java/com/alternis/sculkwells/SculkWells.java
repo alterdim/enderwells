@@ -6,6 +6,8 @@ import com.alternis.sculkwells.entity.ModEntityTypes;
 import com.alternis.sculkwells.entity.client.ProteanGuardRenderer;
 import com.alternis.sculkwells.items.ModCreativeModTab;
 import com.alternis.sculkwells.items.ModItems;
+import com.alternis.sculkwells.networking.ModMessages;
+import com.alternis.sculkwells.particles.ModParticles;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -33,6 +35,7 @@ public class SculkWells
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModEntityTypes.register(modEventBus);
+        ModParticles.register(modEventBus);
         modEventBus.addListener(this::commonSetup);
         modEventBus.register(this);
         ModBlockEntities.register(modEventBus);
@@ -50,6 +53,12 @@ public class SculkWells
         }
     }
 
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            ModMessages.register();
+        });
+    }
+
     @SubscribeEvent
     public void buildContents(CreativeModeTabEvent.BuildContents event) {
         // Add to ingredients tab
@@ -63,10 +72,6 @@ public class SculkWells
 
 
 
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
     }
 
 }
