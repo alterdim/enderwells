@@ -7,6 +7,9 @@ import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
 import com.alternis.sculkwells.particles.ModParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -18,6 +21,7 @@ import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,13 +47,13 @@ public class SculkExtractor extends BaseEntityBlock {
         return Math.abs(block.getX()) == 2 || Math.abs(block.getZ()) == 2;
     }).map(BlockPos::immutable).toList();
 
-
+    @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
     }
 
     public static boolean isValidSculk(Level level, BlockPos pPos, BlockPos sculkPos) {
-        return level.isEmptyBlock(pPos.offset(sculkPos.getX() / 2, sculkPos.getY(), sculkPos.getZ() / 2));
+        return level.getBlockState(pPos.offset(sculkPos)).getBlock() == Blocks.SCULK && level.isEmptyBlock(pPos.offset(sculkPos.getX() / 2, sculkPos.getY(), sculkPos.getZ() / 2));
     }
 
     @Override
@@ -82,9 +86,8 @@ public class SculkExtractor extends BaseEntityBlock {
         super.animateTick(pState, pLevel, pPos, pRandom);
         if ((pLevel.getBlockEntity(pPos) instanceof SculkExtractorEntity extractor) && extractor.isWorking()) {
             for(BlockPos blockpos : SCULK_BLOCKS) {
-                if (pRandom.nextInt(16) == 0 && isValidSculk(pLevel, pPos, blockpos)) {
+                if (pRandom.nextInt(2) == 0 && isValidSculk(pLevel, pPos, blockpos)) {
                     pLevel.addParticle(ModParticles.SCULK_SOUL_PARTICLES.get(), (double)pPos.getX() + 0.5D, (double)pPos.getY() + 2.0D, (double)pPos.getZ() + 0.5D, (double)((float)blockpos.getX() + pRandom.nextFloat()) - 0.5D, (double)((float)blockpos.getY() - pRandom.nextFloat() - 1.0F), (double)((float)blockpos.getZ() + pRandom.nextFloat()) - 0.5D);
-                    System.out.println("yes");
                 }
             }
         }
@@ -94,27 +97,20 @@ public class SculkExtractor extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        for (BlockPos positiions : SCULK_BLOCKS) {
-            System.out.println(positiions);
-        }
 
         if (!(world.getBlockEntity(pos) instanceof SculkExtractorEntity extractor)) {
             return InteractionResult.PASS;
         }
         ItemStack stack = player.getItemInHand(hand);
         if (stack.isEmpty() && extractor.isFull()) {
-            boolean result = player.addItem(extractor.getItemHandler().extractItem(0, 1, false));
+            boolean result = player.addItem(extractor.getItemHandler().removeItem(0, 1));
             if (result) {
                 return InteractionResult.sidedSuccess(world.isClientSide());
             }
 
         }
-        System.out.println(stack.isEmpty());
-        System.out.println(extractor.isFull());
         if (!stack.isEmpty() && !extractor.isFull() && stack.is(Blocks.GOLD_BLOCK.asItem())) {
-            System.out.println("OMG");
             boolean result = extractor.addItem(player, stack, hand);
-            System.out.println(result);
             if (result) {
                 return InteractionResult.sidedSuccess(world.isClientSide());
             }
