@@ -15,12 +15,10 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.shadowed.eliotlash.mclib.math.functions.classic.Mod;
 
 
-public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
+public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity {
 
     @Nullable
     @Override
@@ -48,7 +46,7 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
 
     protected final ContainerData data;
     private int progress = 0;
-    private int MAX_PROGRESS = 25;
+    private int MAX_PROGRESS = 5;
     private int workProgress = 0;
     private int MAX_WORK = 200;
 
@@ -60,6 +58,11 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
         }
 
         return stack;
+    }
+
+    @Override
+    public boolean canPlaceItem(int index, ItemStack stack) {
+        return stack.is(Blocks.GOLD_BLOCK.asItem());
     }
 
 
@@ -145,8 +148,9 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
                 }
             }
         }
+        ModMessages.sendToClients(new ItemStackSyncS2CPacket(pEntity.getItemHandler(), blockPos));
 
-        }
+    }
 
     public boolean increaseProgress(int amount) {
         progress+= amount;
@@ -160,6 +164,20 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
 
         }
         return false;
+    }
+
+    @Override
+    public void setItem(int index, ItemStack stack) {
+
+        getItemHandler().setItem(index, stack);
+        ModMessages.sendToClients(new ItemStackSyncS2CPacket(getItemHandler(), worldPosition));
+    }
+
+    @Override
+    public ItemStack removeItem(int index, int count) {
+        ItemStack stack = getItemHandler().removeItem(index, count);
+        ModMessages.sendToClients(new ItemStackSyncS2CPacket(getItemHandler(), worldPosition));
+        return stack;
     }
 
 
@@ -193,9 +211,9 @@ public class SculkExtractorEntity extends SimpleInventoryBlockEntity {
         };
     }
 
-    public void setHandler(ItemStackHandler itemStackHandler) {
-        for (int i = 0; i < itemStackHandler.getSlots(); i++) {
-            getItemHandler().setItem(i, itemStackHandler.getStackInSlot(i));
+    public void setHandler(Container container) {
+        for (int i = 0; i < container.getContainerSize(); i++) {
+            getItemHandler().setItem(i, container.getItem(i));
         }
     }
 

@@ -4,6 +4,8 @@ import com.alternis.sculkwells.blocks.entity.SculkExtractorEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkEvent;
@@ -14,19 +16,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ItemStackSyncS2CPacket {
-    private final ItemStackHandler itemStackHandler;
+    private Container container;
     private final BlockPos pos;
 
-    public ItemStackSyncS2CPacket(ItemStackHandler itemStackHandler, BlockPos pos) {
-        this.itemStackHandler = itemStackHandler;
+    public ItemStackSyncS2CPacket(Container newContainer, BlockPos pos) {
         this.pos = pos;
+        this.container = newContainer;
     }
 
     public ItemStackSyncS2CPacket(FriendlyByteBuf buf) {
         List<ItemStack> collection = buf.readCollection(ArrayList::new, FriendlyByteBuf::readItem);
-        itemStackHandler = new ItemStackHandler(collection.size());
+        container = new SimpleContainer(collection.size());
         for (int i = 0; i < collection.size(); i++) {
-            itemStackHandler.insertItem(i, collection.get(i), false);
+            container.setItem(i, collection.get(i));
         }
 
         this.pos = buf.readBlockPos();
@@ -34,8 +36,8 @@ public class ItemStackSyncS2CPacket {
 
     public void toBytes(FriendlyByteBuf buf) {
         Collection<ItemStack> list = new ArrayList<>();
-        for(int i = 0; i < itemStackHandler.getSlots(); i++) {
-            list.add(itemStackHandler.getStackInSlot(i));
+        for(int i = 0; i < container.getContainerSize(); i++) {
+            list.add(container.getItem(i));
         }
 
         buf.writeCollection(list, FriendlyByteBuf::writeItem);
@@ -46,7 +48,7 @@ public class ItemStackSyncS2CPacket {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
             if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof SculkExtractorEntity blockEntity) {
-                blockEntity.setHandler(this.itemStackHandler);
+                blockEntity.setHandler(this.container);
             }
         });
         return true;
