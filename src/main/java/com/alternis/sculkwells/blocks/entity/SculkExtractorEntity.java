@@ -33,10 +33,23 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoBlockEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import software.bernie.shadowed.eliotlash.mclib.math.functions.classic.Mod;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity {
+
+public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity implements GeoBlockEntity {
 
     @Nullable
     @Override
@@ -49,6 +62,10 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity {
     private int MAX_PROGRESS = 5;
     private int workProgress = 0;
     private int MAX_WORK = 200;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    RawAnimation IDLE_ANIM = RawAnimation.begin().thenPlay("animation.sculk_extractor.off");
+    List<RawAnimation> WORK_ANIMS;
+    private Random random = new Random();
 
     public ItemStack getRenderStack() {
         ItemStack stack = ItemStack.EMPTY;
@@ -92,6 +109,10 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity {
 
     public SculkExtractorEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.SCULK_EXTRACTOR.get(), pPos, pBlockState);
+        WORK_ANIMS = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            WORK_ANIMS.add(RawAnimation.begin().thenPlay("animation.sculk_extractor.working" + i));
+        }
         this.data = new ContainerData() {
             @Override
             public int get(int pIndex) {
@@ -217,4 +238,28 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity {
         }
     }
 
+    private <E extends GeoAnimatable> PlayState predicate(AnimationState<E> event) {
+        if (!this.isWorking()) {
+            event.getController().setAnimation(IDLE_ANIM);
+
+        }
+        else {
+            int anim = random.nextInt(WORK_ANIMS.size());
+            if (event.getController().hasAnimationFinished() || event.getController().getCurrentRawAnimation() == IDLE_ANIM) {
+                event.getController().setAnimation(WORK_ANIMS.get(anim));
+            }
+
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller", 0, this::predicate));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 }

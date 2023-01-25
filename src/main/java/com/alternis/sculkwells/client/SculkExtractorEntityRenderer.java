@@ -27,6 +27,7 @@ import org.joml.Vector3f;
 
 import java.util.Random;
 
+@Deprecated
 public class SculkExtractorEntityRenderer implements BlockEntityRenderer<SculkExtractorEntity> {
     float randomOffset = new Random().nextFloat(1, 100);
     public SculkExtractorEntityRenderer(BlockEntityRendererProvider.Context context ) {

@@ -2,6 +2,7 @@ package com.alternis.sculkwells.event;
 
 import com.alternis.sculkwells.SculkWells;
 import com.alternis.sculkwells.blocks.entity.ModBlockEntities;
+import com.alternis.sculkwells.blocks.entity.client.SculkExtractorRenderer;
 import com.alternis.sculkwells.client.SculkExtractorEntityRenderer;
 import com.alternis.sculkwells.entity.ModEntityTypes;
 import com.alternis.sculkwells.entity.custom.ProteanGuardEntity;
@@ -32,7 +33,7 @@ public class ModEvents {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event)
         {
-            event.registerBlockEntityRenderer(ModBlockEntities.SCULK_EXTRACTOR.get(), SculkExtractorEntityRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.SCULK_EXTRACTOR.get(), SculkExtractorRenderer::new);
         }
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
