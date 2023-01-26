@@ -4,34 +4,20 @@ import com.alternis.sculkwells.blocks.ModBlocks;
 import com.alternis.sculkwells.networking.ModMessages;
 import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -42,7 +28,6 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import software.bernie.shadowed.eliotlash.mclib.math.functions.classic.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +49,9 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
     private int MAX_WORK = 200;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     RawAnimation IDLE_ANIM = RawAnimation.begin().thenPlay("animation.sculk_extractor.off");
-    List<RawAnimation> WORK_ANIMS;
+    private List<RawAnimation> WORK_ANIMS;
     private Random random = new Random();
+
 
     public ItemStack getRenderStack() {
         ItemStack stack = ItemStack.EMPTY;
@@ -245,7 +231,7 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
         }
         else {
             int anim = random.nextInt(WORK_ANIMS.size());
-            if (event.getController().hasAnimationFinished() || event.getController().getCurrentRawAnimation() == IDLE_ANIM) {
+            if (event.getController().getAnimationState() == AnimationController.State.STOPPED || event.getController().hasAnimationFinished() || event.getController().getCurrentRawAnimation() == IDLE_ANIM) {
                 event.getController().setAnimation(WORK_ANIMS.get(anim));
             }
 

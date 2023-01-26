@@ -67,7 +67,7 @@ public class SculkWells
             event.accept(ModBlocks.SCULK_IRON_BLOCK);
             event.accept(ModItems.SCULK_IRON_INGOT);
             event.accept(ModItems.PROTEAN_GUARD_SPAWN_EGG);
-            event.accept(ModBlocks.SCULK_EXTRACTOR);
+            event.accept(ModItems.SCULK_EXTRATOR_ITEM);
         }
 
 

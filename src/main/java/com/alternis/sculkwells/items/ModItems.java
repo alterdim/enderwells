@@ -1,6 +1,7 @@
 package com.alternis.sculkwells.items;
 
 import com.alternis.sculkwells.SculkWells;
+import com.alternis.sculkwells.blocks.ModBlocks;
 import com.alternis.sculkwells.entity.ModEntityTypes;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -15,6 +16,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> DARK_DRILL = ITEMS.register("dark_drill", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> SCULK_IRON_INGOT = ITEMS.register("sculk_iron_ingot", () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> SCULK_EXTRATOR_ITEM = ITEMS.register("sculk_extractor",
+            () -> new SculkExtractorItem(ModBlocks.SCULK_EXTRACTOR.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> PROTEAN_GUARD_SPAWN_EGG =
             ITEMS.register("protean_guard_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.PROTEAN_GUARD,0x620afa, 0x000000, new Item.Properties()));

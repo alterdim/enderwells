@@ -1,3 +1,27 @@
 {
-  "parent": "sculkwells:block/sculk_extractor"
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        17.6,
+        23.64,
+        -6.59
+      ],
+      "translation": [
+        -0.5,
+        -5,
+        0
+      ],
+      "scale": [
+        0.81,
+        0.81,
+        0.81
+      ]
+    }
+  }
 }

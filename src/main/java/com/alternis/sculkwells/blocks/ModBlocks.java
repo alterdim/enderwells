@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, SculkWells.MOD_ID);
 
-    public static final RegistryObject<Block> SCULK_EXTRACTOR = registerBlock("sculk_extractor", ()->
+    public static final RegistryObject<Block> SCULK_EXTRACTOR = registerBlockWithoutItem("sculk_extractor", ()->
             new SculkExtractor(BlockBehaviour.Properties.of(Material.SCULK)));
     public static final RegistryObject<Block> SCULK_IRON_BLOCK = registerBlock("sculk_iron_block", () -> new Block(BlockBehaviour.Properties.of(Material.SCULK)));
 
@@ -31,6 +31,11 @@ public class ModBlocks {
         registerBlockItem(name, toReturn);
         return toReturn;
     }
+    private static <T extends Block> RegistryObject<T> registerBlockWithoutItem(String name, Supplier<T> block) {
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+        return toReturn;
+    }
+
 
     private static <T extends Block> RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block) {
         return ModItems.ITEMS.register(name, ()->new BlockItem(block.get(), new Item.Properties()));

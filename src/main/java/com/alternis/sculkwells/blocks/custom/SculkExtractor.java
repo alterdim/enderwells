@@ -41,7 +41,7 @@ public class SculkExtractor extends BaseEntityBlock {
 
     protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     public SculkExtractor(Properties pProperties) {
-        super(pProperties.noOcclusion().sound(SoundType.AMETHYST));
+        super(pProperties.noOcclusion());
     }
     public static final List<BlockPos> SCULK_BLOCKS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2).filter((block) -> {
         return Math.abs(block.getX()) == 2 || Math.abs(block.getZ()) == 2;
