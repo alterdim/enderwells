@@ -8,12 +8,10 @@
  * Botania License: http://botaniamod.net/license.php
  */
 
-package com.alternis.sculkwells.blocks.entity;
+package com.alternis.sculkwells.blocks.api;
 
 import com.alternis.sculkwells.blocks.ModBlocks;
-import com.alternis.sculkwells.blocks.api.VanillaPacketDispatcher;
-import com.alternis.sculkwells.networking.ModMessages;
-import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
+import com.alternis.sculkwells.blocks.api.SimpleInventoryBlockEntity;
 import com.google.common.base.Suppliers;
 
 import net.minecraft.core.BlockPos;
@@ -25,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

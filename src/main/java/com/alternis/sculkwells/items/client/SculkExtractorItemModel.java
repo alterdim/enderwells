@@ -1,8 +1,7 @@
 package com.alternis.sculkwells.items.client;
 
 import com.alternis.sculkwells.SculkWells;
-import com.alternis.sculkwells.blocks.entity.SculkExtractorEntity;
-import com.alternis.sculkwells.items.SculkExtractorItem;
+import com.alternis.sculkwells.items.custom.SculkExtractorItem;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 

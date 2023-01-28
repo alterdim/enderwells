@@ -2,6 +2,7 @@ package com.alternis.sculkwells.blocks;
 
 import com.alternis.sculkwells.SculkWells;
 import com.alternis.sculkwells.blocks.custom.SculkExtractor;
+import com.alternis.sculkwells.blocks.custom.Shatterer;
 import com.alternis.sculkwells.items.ModItems;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,6 +24,8 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> SCULK_EXTRACTOR = registerBlockWithoutItem("sculk_extractor", ()->
             new SculkExtractor(BlockBehaviour.Properties.of(Material.SCULK)));
+    public static final RegistryObject<Block> SHATTERER = registerBlockWithoutItem("shatterer", () ->
+            new Shatterer(BlockBehaviour.Properties.of(Material.SCULK)));
     public static final RegistryObject<Block> SCULK_IRON_BLOCK = registerBlock("sculk_iron_block", () -> new Block(BlockBehaviour.Properties.of(Material.SCULK)));
 
 

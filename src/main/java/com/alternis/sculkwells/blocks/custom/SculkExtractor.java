@@ -43,7 +43,7 @@ public class SculkExtractor extends BaseEntityBlock {
     public SculkExtractor(Properties pProperties) {
         super(pProperties.noOcclusion());
     }
-    public static final List<BlockPos> SCULK_BLOCKS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2).filter((block) -> {
+    public static final List<BlockPos> SCULK_BLOCKS = BlockPos.betweenClosedStream(-3, -3, -3, 3, 3, 3).filter((block) -> {
         return Math.abs(block.getX()) == 2 || Math.abs(block.getZ()) == 2;
     }).map(BlockPos::immutable).toList();
 

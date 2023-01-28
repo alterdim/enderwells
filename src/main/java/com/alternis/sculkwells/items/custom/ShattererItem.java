@@ -1,6 +1,8 @@
-package com.alternis.sculkwells.items;
+package com.alternis.sculkwells.items.custom;
 
+import com.alternis.sculkwells.blocks.custom.Shatterer;
 import com.alternis.sculkwells.items.client.SculkExtractorItemRenderer;
+import com.alternis.sculkwells.items.client.ShattererItemRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
@@ -20,17 +22,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class SculkExtractorItem extends BlockItem implements GeoItem {
+public class ShattererItem extends BlockItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private List<RawAnimation> WORK_ANIMS;
-    private Random random = new Random();
 
-    public SculkExtractorItem(Block pBlock, Properties pProperties) {
+    public ShattererItem(Block pBlock, Properties pProperties) {
         super(pBlock, pProperties);
-        WORK_ANIMS = new ArrayList<>();
-        for (int i = 2; i <= 8; i++) {
-            WORK_ANIMS.add(RawAnimation.begin().thenPlay("animation.sculk_extractor.working" + i));
-        }
     }
 
     @Override
@@ -38,10 +34,6 @@ public class SculkExtractorItem extends BlockItem implements GeoItem {
         controllers.add(new AnimationController(this, "controller", 0, this::predicate));
     }
     private <E extends GeoAnimatable> PlayState predicate(AnimationState<E> event) {
-        int anim = random.nextInt(WORK_ANIMS.size());
-        if (event.getController().getAnimationState() == AnimationController.State.STOPPED || event.getController().hasAnimationFinished()) {
-            event.getController().setAnimation(WORK_ANIMS.get(anim));
-        }
         return PlayState.CONTINUE;
     }
 
@@ -59,11 +51,11 @@ public class SculkExtractorItem extends BlockItem implements GeoItem {
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         super.initializeClient(consumer);
         consumer.accept(new IClientItemExtensions() {
-            private SculkExtractorItemRenderer renderer;
+            private ShattererItemRenderer renderer;
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 if (this.renderer ==  null){
-                    this.renderer = new SculkExtractorItemRenderer();
+                    this.renderer = new ShattererItemRenderer();
                 }
                 return this.renderer;
             }

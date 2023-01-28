@@ -1,6 +1,7 @@
 package com.alternis.sculkwells.blocks.entity;
 
 import com.alternis.sculkwells.blocks.ModBlocks;
+import com.alternis.sculkwells.blocks.api.ExposedSimpleInventoryBlockEntity;
 import com.alternis.sculkwells.networking.ModMessages;
 import com.alternis.sculkwells.networking.packet.ItemStackSyncS2CPacket;
 import net.minecraft.core.BlockPos;
@@ -11,7 +12,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,22 +36,28 @@ import java.util.Random;
 
 public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity implements GeoBlockEntity {
 
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    protected final ContainerData data;
     private int progress = 0;
     private int MAX_PROGRESS = 5;
     private int workProgress = 0;
-    private int MAX_WORK = 200;
+    private static final int MAX_WORK = 200;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     RawAnimation IDLE_ANIM = RawAnimation.begin().thenPlay("animation.sculk_extractor.off");
     private List<RawAnimation> WORK_ANIMS;
     private Random random = new Random();
 
+    public SculkExtractorEntity(BlockPos pPos, BlockState pBlockState) {
+        super(ModBlockEntities.SCULK_EXTRACTOR.get(), pPos, pBlockState);
+        WORK_ANIMS = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            WORK_ANIMS.add(RawAnimation.begin().thenPlay("animation.sculk_extractor.working" + i));
+        }
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
 
     public ItemStack getRenderStack() {
         ItemStack stack = ItemStack.EMPTY;
@@ -93,37 +99,7 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
 
 
 
-    public SculkExtractorEntity(BlockPos pPos, BlockState pBlockState) {
-        super(ModBlockEntities.SCULK_EXTRACTOR.get(), pPos, pBlockState);
-        WORK_ANIMS = new ArrayList<>();
-        for (int i = 1; i <= 8; i++) {
-            WORK_ANIMS.add(RawAnimation.begin().thenPlay("animation.sculk_extractor.working" + i));
-        }
-        this.data = new ContainerData() {
-            @Override
-            public int get(int pIndex) {
-                return switch (pIndex) {
-                    case 0 -> SculkExtractorEntity.this.progress;
-                    case 1 -> SculkExtractorEntity.this.MAX_PROGRESS;
-                    default -> 0;
-                };
-            }
 
-            @Override
-            public void set(int pIndex, int pValue) {
-                switch (pIndex) {
-                    case 0 -> SculkExtractorEntity.this.progress = pValue;
-                    case 1 -> SculkExtractorEntity.this.MAX_PROGRESS = pValue;
-                };
-
-            }
-
-            @Override
-            public int getCount() {
-                return 0;
-            }
-        };
-    }
 
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(getItemHandler().getContainerSize());
@@ -155,7 +131,7 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
                 }
             }
         }
-        ModMessages.sendToClients(new ItemStackSyncS2CPacket(pEntity.getItemHandler(), blockPos));
+        pEntity.updateBlock();
 
     }
 
@@ -163,7 +139,6 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
         progress+= amount;
         if (progress == MAX_PROGRESS) {
             resetProgress();
-
             if (getItemHandler().getItem(0).is(Blocks.GOLD_BLOCK.asItem())) {
                 getLevel().playLocalSound(getBlockPos(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 1f, 1f, true);
                 getItemHandler().setItem(0, ModBlocks.SCULK_IRON_BLOCK.get().asItem().getDefaultInstance());
@@ -175,7 +150,6 @@ public class SculkExtractorEntity extends ExposedSimpleInventoryBlockEntity impl
 
     @Override
     public void setItem(int index, ItemStack stack) {
-
         getItemHandler().setItem(index, stack);
         ModMessages.sendToClients(new ItemStackSyncS2CPacket(getItemHandler(), worldPosition));
     }

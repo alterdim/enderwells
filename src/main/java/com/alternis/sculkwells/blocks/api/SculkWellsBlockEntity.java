@@ -1,4 +1,4 @@
-package com.alternis.sculkwells.blocks.entity;
+package com.alternis.sculkwells.blocks.api;
 /*
  * This class is a modified part of the Botania Mod.
  * Get the Source Code in github:

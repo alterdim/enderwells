@@ -8,7 +8,7 @@
  * Botania License: http://botaniamod.net/license.php
  */
 
-package com.alternis.sculkwells.blocks.entity;
+package com.alternis.sculkwells.blocks.api;
 
 import com.google.common.base.Preconditions;
 
@@ -73,5 +73,15 @@ public abstract class SimpleInventoryBlockEntity extends SculkWellsBlockEntity i
 
     public final Container getItemHandler() {
         return itemHandler;
+    }
+
+    public boolean updateBlock() {
+        if(level != null) {
+            BlockState state = level.getBlockState(worldPosition);
+            level.sendBlockUpdated(worldPosition, state, state, 3);
+            setChanged();
+            return true;
+        }
+        return false;
     }
 }

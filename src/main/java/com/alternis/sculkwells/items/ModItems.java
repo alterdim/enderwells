@@ -3,7 +3,8 @@ package com.alternis.sculkwells.items;
 import com.alternis.sculkwells.SculkWells;
 import com.alternis.sculkwells.blocks.ModBlocks;
 import com.alternis.sculkwells.entity.ModEntityTypes;
-import net.minecraft.world.item.CreativeModeTab;
+import com.alternis.sculkwells.items.custom.SculkExtractorItem;
+import com.alternis.sculkwells.items.custom.ShattererItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -19,6 +20,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> SCULK_EXTRATOR_ITEM = ITEMS.register("sculk_extractor",
             () -> new SculkExtractorItem(ModBlocks.SCULK_EXTRACTOR.get(), new Item.Properties()));
+    public static final RegistryObject<Item> SHATTERER_ITEM = ITEMS.register("shatterer",
+            () -> new ShattererItem(ModBlocks.SHATTERER.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> PROTEAN_GUARD_SPAWN_EGG =
             ITEMS.register("protean_guard_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.PROTEAN_GUARD,0x620afa, 0x000000, new Item.Properties()));

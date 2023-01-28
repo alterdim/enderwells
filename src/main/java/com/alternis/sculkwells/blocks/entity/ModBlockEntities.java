@@ -13,6 +13,8 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, SculkWells.MOD_ID);
 
+    public static final RegistryObject<BlockEntityType<ShattererEntity>> SHATTERER =
+            BLOCK_ENTITIES.register("shatterer", () -> BlockEntityType.Builder.of(ShattererEntity::new, ModBlocks.SHATTERER.get()).build(null));
     public static final RegistryObject<BlockEntityType<SculkExtractorEntity>> SCULK_EXTRACTOR =
             BLOCK_ENTITIES.register("sculk_extractor", () -> BlockEntityType.Builder.of(SculkExtractorEntity::new, ModBlocks.SCULK_EXTRACTOR.get()).build(null));
 
